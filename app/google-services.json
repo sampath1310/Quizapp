@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "394531521933",
+    "firebase_url": "https://projectxquize.firebaseio.com",
+    "project_id": "projectxquize",
+    "storage_bucket": "projectxquize.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394531521933:android:d8ae3834d84e3d9e",
+        "android_client_info": {
+          "package_name": "com.br.kid.quiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "394531521933-u5sqa670rt0o2kq896m5kpfepce2r2u0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZREc6MxmR7gne_w2vlNp--jHG3oQXJwU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Quiz</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="main_icon">icon</string>
+    <string name="register">Register</string>
+    <string name="title_activity_register_account">RegisterAccount</string>
+    <string name="action_number">Phone Number</string>
+    <string name="hint_number">Enter Phone Number</string>
+    <string name="profile_reg">User Profile</string>
+    <string name="choose_cat">Choose Category</string>
+    <string name="username_hint">User Name</string>
+    <string name="phno">Phone No</string>
+    <string name="user_profile">User Profile</string>
+    <string name="register_txt">Register</string>
+
+    <string-array name="catogery_spinner_values">
+        <item>Student</item>
+        <item>Mentor</item>
+    </string-array>
+
+</resources>
