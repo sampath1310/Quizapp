@@ -125,8 +125,9 @@ public class RegisterAccount extends AppCompatActivity {
                                     Log.d("createuser", "createUserWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     appFirebase.registerUser(username_text,email_text,password_text,phno_text,catogery);
-                                    Intent login=new Intent(RegisterAccount.this,LoginActivity.class);
-                                    startActivity(login);
+//                                    Intent login=new Intent(RegisterAccount.this,LoginActivity.class);
+//                                    startActivity(login);
+                                    finish();
                                 }
                                 //TODO Handel NetworkException RegisterActivity
                                     Log.w("Createuser", "createUserWithEmail:failure", task.getException());
