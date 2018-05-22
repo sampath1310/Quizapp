@@ -37,11 +37,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LoggingMXBean;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -78,6 +86,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private LinearLayout linlayout;
     private LinearLayout main_layout;
 
+
+    private String email_text;
+    private String password_text;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,22 +111,67 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+//        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+//                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
+//                    attemptLogin();
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                email_text = mEmailView.getText().toString();
+                password_text= mPasswordView.getText().toString();
+                if(isEmailValid(email_text) && isPasswordValid(password_text)){
+
+                    mAuth.signInWithEmailAndPassword(email_text, password_text)
+                            .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        Log.d("Signin_status", "signInWithEmail:success");
+                                        FirebaseUser user = mAuth.getCurrentUser();
+                                        Log.d("userdetails",user.getEmail());
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+
+                                        try {
+                                            throw task.getException();
+                                        } catch(FirebaseAuthWeakPasswordException e) {
+                                            mPasswordView.setError(getString(R.string.error_weak_password));
+                                            mPasswordView.requestFocus();
+                                        } catch(FirebaseAuthInvalidCredentialsException e) {
+                                            mPasswordView.setError(getString(R.string.error_invalid_password));
+                                            mPasswordView.requestFocus();
+                                        } catch(FirebaseAuthInvalidUserException e) {
+                                            mEmailView.setError(getString(R.string.error_user_exists));
+                                            mEmailView.requestFocus();
+                                        } catch(Exception e) {
+                                            Log.e("sd", e.getMessage());
+                                        }
+                                        Log.w("Signin_status", "Signin_status:failure", task.getException());
+                                        Toast.makeText(LoginActivity.this, "Please check credential",
+                                                Toast.LENGTH_SHORT).show();
+
+                                    }
+                                }
+                            });
+
+                }else{
+                    mPasswordView.setError("Invalid");
+                    mPasswordView.requestFocus();
+                    mEmailView.setError("Invalid");
+                    mEmailView.requestFocus();
+
+
+                }
             }
         });
 
@@ -128,16 +185,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser==null) {
+        if(currentUser!=null) {
 
 
             //TODO
             //Make reference if not null to next activity
             //if is null then sign in page
-            Toast.makeText(this,"make_signin_firebase",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,""+currentUser.getEmail(),Toast.LENGTH_SHORT).show();
             Log.d("CurrentUserstatus","Null User");
         }
-
     }
 
     public void registerUser(View v){
@@ -194,8 +250,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
-        if (mAuthTask != null) {
+    private void attemptLogin(String email,String password) {
+
+
+
+        if (mAuth != null) {
+            Log.d("myauth",mAuth.getCurrentUser().getEmail());
             return;
         }
 
@@ -205,8 +265,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+
 
         boolean cancel = false;
         View focusView = null;
@@ -240,6 +299,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
+
+
+
+
+
+
     }
 
     private boolean isEmailValid(String email) {

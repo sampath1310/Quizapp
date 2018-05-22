@@ -3,6 +3,7 @@ package com.br.kid.quiz;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,9 +22,17 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import AppicationFunction.AppFirebase;
 
 public class RegisterAccount extends AppCompatActivity {
     //TODO snack bar
@@ -31,12 +40,18 @@ public class RegisterAccount extends AppCompatActivity {
 
     private LinearLayout linlayout;
     private LinearLayout main_layout;
+
+    private AppFirebase appFirebase;
+
     private FirebaseAuth mAuth;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
     private EditText username;
     private EditText email;
     private EditText password;
     private EditText phoneno;
+
 
     private Button register_btn;
 
@@ -47,6 +62,8 @@ public class RegisterAccount extends AppCompatActivity {
     private String password_text;
     private String phno_text;
     private String catogery;
+
+    private long lastClickTime = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +91,8 @@ public class RegisterAccount extends AppCompatActivity {
 
 
 
+
+
         register_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,27 +102,43 @@ public class RegisterAccount extends AppCompatActivity {
                 phno_text=phoneno.getText().toString();
                 catogery=spinner.getSelectedItem().toString();
 
+                database = FirebaseDatabase.getInstance();
+                appFirebase=new AppFirebase(database);
+                if (SystemClock.elapsedRealtime() - lastClickTime < 1000){
+                    Log.d("doubleclick","YES");
+                    return;
+                }
+
+                lastClickTime = SystemClock.elapsedRealtime();
+
+
+
+
                 if(checkRegisterFields(username_text,email_text,password_text,phno_text)){
                     mAuth.createUserWithEmailAndPassword(email_text, password_text)
                         .addOnCompleteListener(RegisterAccount.this, new OnCompleteListener<AuthResult>() {
                             @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
+                            public void onComplete(@NonNull Task<AuthResult> task){
+
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d("createuser", "createUserWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
+                                    appFirebase.registerUser(username_text,email_text,password_text,phno_text,catogery);
                                     Intent login=new Intent(RegisterAccount.this,LoginActivity.class);
                                     startActivity(login);
-                                } else {
-                                    // If sign in fails, display a message to the user.
+                                }
+                                //TODO Handel NetworkException RegisterActivity
                                     Log.w("Createuser", "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(RegisterAccount.this, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
                                 }
 
-                            }
+
                         });
                 }
+
+            //TODO https://firebase.google.com/docs/database/security/quickstart?utm_source=studio#sample-rules
 
 
 
@@ -111,15 +146,8 @@ public class RegisterAccount extends AppCompatActivity {
         });
 
 
-//
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Repl ace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
+
     }
     private boolean isEmailValid(String email) {
         if (TextUtils.isEmpty(email)) {
@@ -167,5 +195,6 @@ public class RegisterAccount extends AppCompatActivity {
         }
         return true;
     }
+
 
 }
