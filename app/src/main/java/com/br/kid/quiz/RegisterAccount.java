@@ -62,6 +62,7 @@ public class RegisterAccount extends AppCompatActivity {
     private String password_text;
     private String phno_text;
     private String catogery;
+    private FirebaseUser user;
 
     private long lastClickTime = 0;
     @Override
@@ -102,8 +103,7 @@ public class RegisterAccount extends AppCompatActivity {
                 phno_text=phoneno.getText().toString();
                 catogery=spinner.getSelectedItem().toString();
 
-                database = FirebaseDatabase.getInstance();
-                appFirebase=new AppFirebase(database);
+
                 if (SystemClock.elapsedRealtime() - lastClickTime < 1000){
                     Log.d("doubleclick","YES");
                     return;
@@ -123,10 +123,13 @@ public class RegisterAccount extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d("createuser", "createUserWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    appFirebase.registerUser(username_text,email_text,password_text,phno_text,catogery);
-//                                    Intent login=new Intent(RegisterAccount.this,LoginActivity.class);
-//                                    startActivity(login);
+                                    database = FirebaseDatabase.getInstance();
+                                    user = mAuth.getCurrentUser();
+                                    appFirebase=new AppFirebase(database);
+
+                                    appFirebase.registerUser(user.getUid(),username_text,email_text,password_text,phno_text,catogery);
+//                                    appFirebase.subjectDetails(email_text);
+//
                                     finish();
                                 }
                                 //TODO Handel NetworkException RegisterActivity

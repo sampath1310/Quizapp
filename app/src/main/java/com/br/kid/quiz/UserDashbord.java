@@ -3,6 +3,7 @@ package com.br.kid.quiz;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,9 +13,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import AppicationFunction.AppFirebase;
 
 public class UserDashbord extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private TextView navUser;
+    private TextView navEmail;
+
+    private String Uuid;
+
+
+    private FirebaseDatabase database;
+    private DatabaseReference mRef;
+    private FirebaseAuth firebaseAuth;
+
+    private AppFirebase appFirebase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,15 +45,6 @@ public class UserDashbord extends AppCompatActivity
         setContentView(R.layout.activity_user_dashbord);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null);
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -40,6 +54,46 @@ public class UserDashbord extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        firebaseAuth=FirebaseAuth.getInstance();
+        database=FirebaseDatabase.getInstance();
+        mRef=database.getReference();
+
+        Uuid=firebaseAuth.getCurrentUser().getUid();
+
+
+        appFirebase=new AppFirebase(database,firebaseAuth,mRef);
+        Log.d(appFirebase.getEmail(),"email");
+
+        //setting user name email
+        View headerView = navigationView.getHeaderView(0);
+        navEmail = (TextView) headerView.findViewById(R.id.nav_header_user_email);
+        navEmail.setText(appFirebase.getEmail());
+        navUser = (TextView)headerView.findViewById(R.id.nav_header_user_name);
+
+
+        //String username=appFirebase.getUserName(Uuid);
+        navUser.setText(appFirebase.getUserName(Uuid));
+        Log.d("TAG",Uuid);
+
+
+        database.getReference().child("UserDetails").child(Uuid).child("user_name")
+                                .addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        navUser.setText(new String(dataSnapshot.getValue().toString()));
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+ 
+
+
     }
 
     @Override
@@ -63,7 +117,7 @@ public class UserDashbord extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // as you specify a parent activity in AndroidnavManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement

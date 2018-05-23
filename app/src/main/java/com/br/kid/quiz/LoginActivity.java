@@ -187,12 +187,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser!=null) {
 
-
+            Intent intent=new Intent(LoginActivity.this,UserDashbord.class);
+            startActivity(intent);
             //TODO
             //Make reference if not null to next activity
             //if is null then sign in page
-            Toast.makeText(this,""+currentUser.getEmail(),Toast.LENGTH_SHORT).show();
-            Log.d("CurrentUserstatus","Null User");
+//            Toast.makeText(this,""+currentUser.getEmail(),Toast.LENGTH_SHORT).show();
+//            Log.d("CurrentUserstatus","Null User");
         }
     }
 
